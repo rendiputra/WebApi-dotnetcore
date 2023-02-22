@@ -16,6 +16,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Models;
+using Microsoft.AspNetCore.Identity;
+using WebApi.Areas.Identity.Data;
 
 namespace WebApi
 {
@@ -35,6 +37,7 @@ namespace WebApi
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First()); //This line
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -72,6 +75,22 @@ namespace WebApi
                 var key = Configuration.GetValue<string>("JwtConfig:Key");
                 var keyBytes = Encoding.ASCII.GetBytes(key);
 
+                jwtOptions.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var userMachine = context.HttpContext.RequestServices.GetRequiredService<UserManager<WebApiUser>>();
+                        var user = userMachine.GetUserAsync(context.HttpContext.User);
+
+                        if (user == null)
+                        {
+                            context.Fail("UnAuthorized");
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+
                 jwtOptions.SaveToken = true;
                 jwtOptions.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -92,6 +111,7 @@ namespace WebApi
         {
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
+            app.UseDeveloperExceptionPage();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
