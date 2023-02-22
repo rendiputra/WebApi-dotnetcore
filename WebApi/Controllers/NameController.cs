@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace WebApi.Controllers
 {
-    [Authorize]
+   // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NameController : ControllerBase
