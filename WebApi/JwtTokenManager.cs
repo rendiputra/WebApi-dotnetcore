@@ -17,7 +17,7 @@ namespace WebApi
         }
         public string Authenticate(string username, string password)
         {
-            if (!Data.Users.Any(x=>x.Key.Equals(username) && x.Value.Equals(password)))
+            if (!Data2.Users.Any(x=>x.Key.Equals(username) && x.Value.Equals(password)))
             {
                 return null;
             }

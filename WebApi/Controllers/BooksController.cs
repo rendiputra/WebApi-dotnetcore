@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Areas.Identity.Data;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -15,8 +17,8 @@ namespace WebApi.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly WebApiContext _context;
 
+        private readonly WebApiContext _context;
         public BooksController(WebApiContext context)
         {
             _context = context;

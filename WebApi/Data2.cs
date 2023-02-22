@@ -2,7 +2,7 @@
 
 namespace WebApi
 {
-    public class Data
+    public class Data2
     {
         public static Dictionary<string, string> Users = new Dictionary<string, string>
         {
