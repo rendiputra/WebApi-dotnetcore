@@ -20,7 +20,10 @@ namespace WebApi.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("WebApiContextConnection")));
 
-                services.AddDefaultIdentity<WebApiUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                services.AddDefaultIdentity<WebApiUser>(options => {
+                        options.SignIn.RequireConfirmedAccount = false;
+                        options.ClaimsIdentity.UserIdClaimType = "UserID";
+                    })
                     .AddEntityFrameworkStores<WebApiContext>();
             });
         }
