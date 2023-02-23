@@ -13,6 +13,7 @@ using WebApi.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+using Microsoft.Extensions.Options;
 
 namespace WebApi.Controllers
 {
@@ -38,7 +39,7 @@ namespace WebApi.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("getToken")]
+        [HttpPost("login")]
         public async Task<ActionResult> GetToken([FromBody] MyLoginModelType myLoginModel)
         {
             var user = _dbContext.Users.FirstOrDefault(x => x.Email == myLoginModel.Email);
@@ -57,7 +58,12 @@ namespace WebApi.Controllers
                     {
                         Subject = new ClaimsIdentity(new Claim[]
                         {
-                    new Claim(ClaimTypes.NameIdentifier, myLoginModel.Email),
+                            // new Claim(ClaimTypes.NameIdentifier, myLoginModel.Email),
+                            new Claim(ClaimTypes.Name, user.UserName),
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                            new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                         }),
                         Expires = DateTime.UtcNow.AddMinutes(30),
                         SigningCredentials = new SigningCredentials
@@ -113,6 +119,21 @@ namespace WebApi.Controllers
 
                 return Ok(new {result = $"Register Fail: {stringBuilder.ToString()}" });
             }
+        }
+
+        [Authorize]
+        [HttpGet("getUserCurrent")]
+        public async Task<ActionResult> GetUserCurrent()
+        {
+            // int id = Convert.ToInt32(HttpContext.User.FindFirstValue("userID"));
+            // var user = await _userManager.GetUserAsync(HttpContext.User);
+            //var user = _dbContext.Users.FirstOrDefault(x => x.Id == id);
+            // var userData = await _signInManager.FindByIdAsync(userId);
+
+            string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userData = _dbContext.Users.FirstOrDefault(x => x.Id == userId);
+
+            return Ok(new { Data = userData });
         }
     }
 
